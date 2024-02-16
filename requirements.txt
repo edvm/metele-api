@@ -3,3 +3,4 @@ pydantic-settings
 httpx
 loguru
 hypercorn
+result

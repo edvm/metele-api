@@ -15,25 +15,63 @@ _retryable_errors = (
 
 
 async def get(
-    url: str, headers=None, timeout=_DEFAULT_TIMEOUT
+    url: str, headers: dict = None, timeout: int = _DEFAULT_TIMEOUT
 ) -> Result[Response, str]:
-    """Send a GET request."""
+    """Send a GET request.
+
+    Args:
+        url (str): The URL to send the request to.
+        headers (dict): The headers to send in the request. Defaults to None.
+        timeout (int): The timeout for the request. Defaults to _DEFAULT_TIMEOUT.
+    Returns:
+        A Result object with the response or the last exception formatted as a string.
+    """
     return await _retryable_request("get", url, headers=headers, timeout=timeout)
 
 
 async def post(
-    url: str, data=None, json=None, headers=None, timeout=_DEFAULT_TIMEOUT
+    url: str,
+    data: dict = None,
+    json: dict = None,
+    headers: dict = None,
+    timeout: int = _DEFAULT_TIMEOUT,
 ) -> Result[Response, str]:
-    """Send a POST request."""
+    """Send a POST request.
+
+    Args:
+        url (str): The URL to send the request to.
+        data (dict): The data to send in the request body. Defaults to None.
+        json (dict): The JSON to send in the request body. Defaults to None.
+        headers (dict): The headers to send in the request. Defaults to None.
+        timeout (int): The timeout for the request. Defaults to _DEFAULT_TIMEOUT.
+
+    Returns:
+        A Result object with the response or the last exception formatted as a string.
+    """
     return await _retryable_request(
         "post", url, data=data, json=json, headers=headers, timeout=timeout
     )
 
 
 async def put(
-    url: str, data=None, json=None, headers=None, timeout=_DEFAULT_TIMEOUT
+    url: str,
+    data: dict = None,
+    json: dict = None,
+    headers: dict = None,
+    timeout: int = _DEFAULT_TIMEOUT,
 ) -> Result[Response, str]:
-    """Send a PUT request."""
+    """Send a PUT request.
+
+    Args:
+        url (str): The URL to send the request to.
+        data (dict): The data to send in the request body. Defaults to None.
+        json (dict): The JSON to send in the request body. Defaults to None.
+        headers (dict): The headers to send in the request. Defaults to None.
+        timeout (int): The timeout for the request. Defaults to _DEFAULT_TIMEOUT.
+
+    Returns:
+        A Result object with the response or the last exception formatted as a string.
+    """
     return await _retryable_request(
         "put", url, data=data, json=json, headers=headers, timeout=timeout
     )
@@ -55,7 +93,12 @@ async def close_pool():
 
 
 async def _retryable_request(
-    method: str, url: str, data=None, json=None, headers=None, timeout=_DEFAULT_TIMEOUT
+    method: str,
+    url: str,
+    data: dict = None,
+    json: dict = None,
+    headers: dict = None,
+    timeout: int = _DEFAULT_TIMEOUT,
 ) -> Result[Response, str]:
     """Send a request with retries.
 
@@ -104,8 +147,24 @@ async def _retryable_request(
 
 
 async def _get_params(
-    method: str, data=None, json=None, headers=None, timeout=None
+    method: str,
+    data: dict = None,
+    json: dict = None,
+    headers: dict = None,
+    timeout: int = None,
 ) -> dict:
+    """Get the parameters for the request.
+    
+    Args:
+        method (str): The HTTP method to use.
+        data (dict): The data to send in the request body. Defaults to None.
+        json (dict): The JSON to send in the request body. Defaults to None.
+        headers (dict): The headers to send in the request. Defaults to None.
+        timeout (int): The timeout for the request. Defaults to None.
+
+    Returns:
+        A dictionary with the parameters for the request.
+    """
     params = {"headers": headers, "timeout": timeout}
     if method == "post":
         params["data"] = data
@@ -113,7 +172,8 @@ async def _get_params(
     return params
 
 
-async def _get_client():
+async def _get_client() -> httpx.AsyncClient:
+    """Get the HTTPX AsyncClient. If it doesn't exist, create it."""
     global _client
     if _client is None:
         _client = httpx.AsyncClient(verify=False)
