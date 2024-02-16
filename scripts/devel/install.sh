@@ -10,7 +10,6 @@ function recreate_venv() {
   python -m venv venv
   source ./venv/bin/activate
   pip3 install --upgrade pip
-  pip3 install poetry
 }
 
 function install_dev_requirements() {
@@ -28,14 +27,12 @@ function install_precommit_hooks() {
 
 function install_requirements_on_docker() {
   echo "Installing requirements.txt"
-  pip3 install -r /requirements.txt
+  pip3 install -r /dev-requirements.txt
 }
 
 function install_requirements_on_local() {
   activate_venv
-  poetry config virtualenvs.create false
-  poetry export -f requirements.txt --output requirements.txt
-  pip3 install -r requirements.txt
+  pip3 install -r dev-requirements.txt
 }
 
 function activate_venv() {
@@ -45,6 +42,7 @@ function activate_venv() {
 
 required_version="$1"
 python_interpreter="python$required_version"
+
 
 # Check if the required version is installed
 if ! command -v $python_interpreter &> /dev/null; then
@@ -66,7 +64,7 @@ else
   echo "Installing dev/local dependencies"
   activate_venv
   install_dev_requirements
-  install_precommit_hooks
+  # install_precommit_hooks
   install_requirements_on_local
 fi
 
