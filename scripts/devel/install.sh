@@ -6,7 +6,11 @@ function recreate_venv() {
     rm -rf ./venv
   fi
   echo "Creating new virtual environment at ./venv"
-  python3 -m venv venv
+  pyenv local $required_version
+  python -m venv venv
+  source ./venv/bin/activate
+  pip3 install --upgrade pip
+  pip3 install poetry
 }
 
 function install_dev_requirements() {
@@ -39,18 +43,16 @@ function activate_venv() {
 }
 
 
-required_version="3.11.0"
-current_version=$(python3 -c "import sys; print('.'.join(map(str, sys.version_info[:3])))")
+required_version="$1"
+python_interpreter="python$required_version"
 
-if [[ "$current_version" < "$required_version" ]]; then
-    echo "Error: Python >= version $required_version is required, but found $current_version"
+# Check if the required version is installed
+if ! command -v $python_interpreter &> /dev/null; then
+    echo "Error: Python $required_version is not installed."
     exit 1
 fi
 
-
-echo "Python version is $required_version. Continuing with the script..."
-
-
+echo "Python version set is $python_interpreter. Continuing with the script..."
 echo "Upgrading pip"
 pip3 install --upgrade pip
 
