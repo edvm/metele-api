@@ -1,22 +1,20 @@
-FROM python:3.11-buster
+FROM python:3.12-buster
 
 ENV PYTHONUNBUFFERED 1
 
-EXPOSE 7000
+COPY requirements.txt dev-requirements.txt ./
 
 COPY poetry.lock pyproject.toml  ./
-COPY ./scripts/install.sh /install.sh
 
 RUN pip install --upgrade pip && \
     pip install poetry && \
-    poetry config virtualenvs.create false && \
-    poetry export -f requirements.txt --output requirements.txt && \
-    /install.sh docker
-
+    pip install wheel && \
+    pip install -r /requirements.txt && \
+    pip install -r /dev-requirements.txt
 
 WORKDIR /app
-
 COPY . ./
+RUN mkdir -p /var/log/fastapi
 EXPOSE 7000/tcp
 ENV PYTHONPATH app
 CMD ["/app/entrypoint.sh"]
