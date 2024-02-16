@@ -1,15 +1,11 @@
-FROM python:3.12-buster
+FROM python:3.12.2
 
 ENV PYTHONUNBUFFERED 1
 
 COPY requirements.txt dev-requirements.txt ./
 
-COPY poetry.lock pyproject.toml  ./
-
 RUN pip install --upgrade pip && \
-    pip install poetry && \
     pip install wheel && \
-    pip install -r /requirements.txt && \
     pip install -r /dev-requirements.txt
 
 WORKDIR /app
