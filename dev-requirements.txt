@@ -3,3 +3,5 @@ pytest
 pytest-mock
 pytest-cov
 pre-commit
+mkdocs-material
+mkdocs-material[imaging]
