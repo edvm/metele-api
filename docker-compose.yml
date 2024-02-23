@@ -10,4 +10,4 @@ services:
     ports:
       - "7000:7000"
     volumes:
-      - ./src:/app/src
+      - ./app:/app
