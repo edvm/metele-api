@@ -1,4 +1,4 @@
-site_name: Faster Fast API Documentation 
+site_name: MeteleAPI Documentation
 theme:
   name: material
   features:
