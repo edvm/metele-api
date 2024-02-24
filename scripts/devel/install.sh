@@ -17,13 +17,14 @@ function ask_project_settings() {
   echo -e "- \033[1mPYTHON_VERSION\033[0m: The version of Python to use (greater or equal)."
   read -p "  Python version (i.e: 3.12): " python_version
 
-  echo -e "PROJECT_NAME=\"$project_name\"\nPROJECT_DESCRIPTION=\"$project_description\"\nPROJECT_AUTHOR_NAME=\"$project_author_name\"\nPROJECT_AUTHOR_EMAIL=\"$project_author_email\"\nAPI_HOST=\"$api_host\"\nAPI_PORT=\"$api_port\"" > .env
-  echo -e "\n\033[1m.env\033[0m file created with the following content:\n"
-  cat .env
-
   # Copy the file ./scripts/files/pyproject.sample.toml to pyproject.toml
   # Replace the following variables in the file:
   sed -e "s/\$NAME/$project_name/g" -e "s/\$DESCRIPTION/$project_description/g" -e "s/\$AUTHOR_NAME/$project_author_name/g" -e "s/\$AUTHOR_EMAIL/$project_author_email/g" -e "s/\$PYTHON_VERSION/$python_version/g" ./scripts/files/pyproject.sample.toml > pyproject.toml
+  echo -e "\n\033[1mpyproject.toml\033[0m file created."
+
+  # Create the .env file with the provided variables
+  echo -e "PROJECT_NAME=\"$project_name\"\nPROJECT_DESCRIPTION=\"$project_description\"\nPROJECT_AUTHOR_NAME=\"$project_author_name\"\nPROJECT_AUTHOR_EMAIL=\"$project_author_email\"\nAPI_HOST=\"$api_host\"\nAPI_PORT=\"$api_port\"" > .env
+  echo -e "\033[1m.env\033[0m file created."
 
   echo -e "\nDo you want to proceed with the installation? (\033[1my/n\033[0m)"
   read install_proceed
@@ -80,8 +81,9 @@ echo -e "\t- \033[1mPROJECT_DESCRIPTION\033[0m: A brief description of the proje
 echo -e "\t- \033[1mPROJECT_AUTHOR_NAME\033[0m: The name of the author of the project."
 echo -e "\t- \033[1mPROJECT_AUTHOR_EMAIL\033[0m: The email of the author of the project."
 echo -e "\t- \033[1mAPI_HOST\033[0m: The host where the API will listen."
-echo -e "\t- \033[1mAPI_PORT\033[0m: The port where the API will listen.\n"
-echo -e "\t- \033[1mPYTHON_VERSION\033[0m: The version of Python to use (will be aut-installed by Rye)."
+echo -e "\t- \033[1mAPI_PORT\033[0m: The port where the API will listen."
+echo -e "\t- \033[1mPYTHON_VERSION\033[0m: The version of Python to use. Will be installed using Rye, no worries if its not installed in your system."
+echo -e "\n"
 
 if ! command -v rye &> /dev/null; then
   echo -e "- \033[1mRye\033[0m:\tIt will check if its already installed. If not, it will install it."
@@ -97,15 +99,12 @@ if [ "$install_proceed" != "y" ]; then
   exit 1
 fi
 
-
 # Check dependencies are installed 
 check_dependencies
 
 # Ask user for project settings
 ask_project_settings
 
-# Check if `rye` is installed, if not, install it
+# Check if 'rye' is installed, if not, install it
 install_rye
 install_dependencies_with_rye
-
-echo "Done!"
