@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 
+cu
+
+function rye_installed() {
+  if [ -f "$HOME/.rye/env" ]; then
+    return 0
+  else
+    return 1
+  fi
+} 
+
 function ask_project_settings() {
   echo -e "\nPlease provide the following information to create a \033[1m.env\033[0m file with the following variables:\n"
   echo -e "- \033[1mPROJECT_NAME\033[0m: The name of the project."
@@ -16,6 +26,9 @@ function ask_project_settings() {
   read -p "  API port: " api_port
   echo -e "- \033[1mPYTHON_VERSION\033[0m: The version of Python to use (greater or equal)."
   read -p "  Python version (i.e: 3.12): " python_version
+
+  # Make the python version be available to the rest of the script
+  export PYTHON_VERSION=$python_version 
 
   # Copy the file ./scripts/files/pyproject.sample.toml to pyproject.toml
   # Replace the following variables in the file:
@@ -49,14 +62,24 @@ function check_dependencies() {
 }
 
 function install_rye() {
-  # Check if `rye` is installed, if not, install it
+
+  if rye_installed; then
+    echo -e "\033[1mRye\033[0m is already installed."
+    return
+  fi
+
   if ! command -v rye &> /dev/null; then
     curl -sSf https://rye-up.com/get | bash
   fi
-  source "$HOME/.rye/env"
 }
 
 function install_dependencies_with_rye() {
+  source "$HOME/.rye/env"
+
+  # Be sure to have the python version installed
+  rye fetch $PYTHON_VERSION
+  rye pin $PYTHON_VERSION
+
   rye sync
   rye add fastapi pydantic-settings httpx loguru hypercorn result 
   rye add --dev pytest pytest-mock pytest-cov pre-commit mkdocs-material mkdocs-material[imaging] 
@@ -83,12 +106,17 @@ echo -e "\t- \033[1mPROJECT_AUTHOR_EMAIL\033[0m: The email of the author of the 
 echo -e "\t- \033[1mAPI_HOST\033[0m: The host where the API will listen."
 echo -e "\t- \033[1mAPI_PORT\033[0m: The port where the API will listen."
 echo -e "\t- \033[1mPYTHON_VERSION\033[0m: The version of Python to use. Will be installed using Rye, no worries if its not installed in your system."
-echo -e "\n"
+echo -e ""
 
-if ! command -v rye &> /dev/null; then
+if ! rye_installed; then
   echo -e "- \033[1mRye\033[0m:\tIt will check if its already installed. If not, it will install it."
   echo -e "\tIt provides a unified experience to \033[1minstall and manages Python installations.\033[0m \n\tIf you want to know more about \033[1mRye\033[0m, please visit https://rye-up.com/."
 fi
+
+# if ! rye_installed; then
+#   echo -e "- \033[1mRye\033[0m:\tIt will check if its already installed. If not, it will install it."
+#   echo -e "\tIt provides a unified experience to \033[1minstall and manages Python installations.\033[0m \n\tIf you want to know more about \033[1mRye\033[0m, please visit https://rye-up.com/."
+# fi
 echo -e "\n"
 
 # Ask user if it wants to proceed
@@ -107,4 +135,16 @@ ask_project_settings
 
 # Check if 'rye' is installed, if not, install it
 install_rye
+
+# Check if 'rye' is installed, if not, quit the script
+if ! rye_installed; then
+  echo "Rye is not installed. Please install it and try again."
+  exit 1
+fi 
+
 install_dependencies_with_rye
+
+
+echo -e "\n\033[1mAll dependencies installed successfully!\033[0m"
+echo -e "----------------------------------------\n"
+echo -e "Open a new terminal or run \033[1m source ~/.rye/env \033[0m to start using the installed dependencies.\n"
