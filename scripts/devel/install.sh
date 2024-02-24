@@ -14,10 +14,16 @@ function ask_project_settings() {
   read -p "  API host: " api_host
   echo -e "- \033[1mAPI_PORT\033[0m: The port where the API will listen."
   read -p "  API port: " api_port
+  echo -e "- \033[1mPYTHON_VERSION\033[0m: The version of Python to use (greater or equal)."
+  read -p "  Python version (i.e: 3.12): " python_version
 
   echo -e "PROJECT_NAME=\"$project_name\"\nPROJECT_DESCRIPTION=\"$project_description\"\nPROJECT_AUTHOR_NAME=\"$project_author_name\"\nPROJECT_AUTHOR_EMAIL=\"$project_author_email\"\nAPI_HOST=\"$api_host\"\nAPI_PORT=\"$api_port\"" > .env
   echo -e "\n\033[1m.env\033[0m file created with the following content:\n"
   cat .env
+
+  # Copy the file ./scripts/files/pyproject.sample.toml to pyproject.toml
+  # Replace the following variables in the file:
+  sed -e "s/\$NAME/$project_name/g" -e "s/\$DESCRIPTION/$project_description/g" -e "s/\$AUTHOR_NAME/$project_author_name/g" -e "s/\$AUTHOR_EMAIL/$project_author_email/g" -e "s/\$PYTHON_VERSION/$python_version/g" ./scripts/files/pyproject.sample.toml > pyproject.toml
 
   echo -e "\nDo you want to proceed with the installation? (\033[1my/n\033[0m)"
   read install_proceed
@@ -75,6 +81,7 @@ echo -e "\t- \033[1mPROJECT_AUTHOR_NAME\033[0m: The name of the author of the pr
 echo -e "\t- \033[1mPROJECT_AUTHOR_EMAIL\033[0m: The email of the author of the project."
 echo -e "\t- \033[1mAPI_HOST\033[0m: The host where the API will listen."
 echo -e "\t- \033[1mAPI_PORT\033[0m: The port where the API will listen.\n"
+echo -e "\t- \033[1mPYTHON_VERSION\033[0m: The version of Python to use (will be aut-installed by Rye)."
 
 if ! command -v rye &> /dev/null; then
   echo -e "- \033[1mRye\033[0m:\tIt will check if its already installed. If not, it will install it."
