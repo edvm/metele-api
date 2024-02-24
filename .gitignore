@@ -165,3 +165,8 @@ cython_debug/
 
 # mkdocs
 docs/site
+
+
+# rye
+requirements-dev.lock
+requirements.lock
