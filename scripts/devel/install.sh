@@ -24,7 +24,7 @@ function ask_project_settings() {
   read -p "  API host: " api_host
   echo -e "- \033[1mAPI_PORT\033[0m: The port where the API will listen."
   read -p "  API port: " api_port
-  echo -e "- \033[1mPYTHON_VERSION\033[0m: The version of Python to use (greater or equal)."
+  echo -e "- \033[1mPYTHON_VERSION\033[0m: The version of Python to use. It'll be installed using Rye (if not already installed in your system)"
   read -p "  Python version (i.e: 3.12): " python_version
 
   # Make the python version be available to the rest of the script
@@ -147,4 +147,5 @@ install_dependencies_with_rye
 
 echo -e "\n\033[1mAll dependencies installed successfully!\033[0m"
 echo -e "----------------------------------------\n"
-echo -e "Open a new terminal or run \033[1m source ~/.rye/env \033[0m to start using the installed dependencies.\n"
+echo -e "Open a new terminal or run \033[1m source ~/.rye/env\033[0m.\n"
+echo -e "Type \033[1mpython\033[0m and you'll get a Python interpreter running the version you selected: $PYTHON_VERSION.\n"
