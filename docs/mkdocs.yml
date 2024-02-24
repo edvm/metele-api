@@ -32,11 +32,9 @@ plugins:
 extra:
   social:
     - icon: fontawesome/brands/github-alt
-      link: https://github.com/james-willett
-    - icon: fontawesome/brands/twitter
-      link: https://twitter.com/TheJamesWillett
+      link: https://github.com/edvm/faster-fastapi 
     - icon: fontawesome/brands/linkedin
-      link: https://www.linkedin.com/in/willettjames/
+      link: https://www.linkedin.com/in/emiliano-dalla-verde-marcozzi-34916613/
 
 markdown_extensions:
   - pymdownx.highlight:
