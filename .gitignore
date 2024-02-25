@@ -161,7 +161,10 @@ cython_debug/
 #
 .python-version
 
+# metele api
 dockerfiles/dev.dockerfile
+docker-compose.yml
+pyproject.toml
 
 # mkdocs
 docs/site

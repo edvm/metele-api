@@ -90,7 +90,6 @@ function run_pytest() {
     for service in "${PYTEST_REQUIRED_RUNNING_CONTAINERS[@]}"; do
         if ! docker ps --format '{{.Names}}' | grep -q "^$service$"; then
             echo "Error: '$service' container is not running."
-            echo "Please be sure to start the 'devops-docker' project before running this command."
             exit 1
         fi
     done
@@ -140,7 +139,7 @@ else
     echo -e "Usage: localenv.sh [\e[1mup\e[0m|\e[1mdown\e[0m|\e[1mpytest\e[0m|\e[1mdebug\e[0m|\e[1mipython\e[0m|\e[1mlint\e[0m|\e[1minstall\e[0m]"
     echo -e "\e[1m  up:\e[0m start the local environment"
     echo -e "\e[1m  down:\e[0m stop the local environment"
-    echo -e "\e[1m  pytest:\e[0m run pytest in the container. It accepts all the pytest arguments. Needs 'devops-docker' project running\e[0m"
+    echo -e "\e[1m  pytest:\e[0m run pytest in the container. It accepts all the pytest arguments." 
     echo -e "\e[1m  debug:\e[0m starts gunicorn in a verbose mode to debug possible startup errors\e[0m" 
     echo -e "\e[1m  ipython:\e[0m starts ipython shell with the database connection\e[0m"
     echo -e "\e[1m  lint:\e[0m run black to lint the code\e[0m"
