@@ -40,6 +40,7 @@ function ask_project_settings() {
   echo -e "\033[1mdocker-compose.yml\033[0m file created."
 
   # Copy the file ./scripts/files/dev.dockerfile to ./dockerfiles/dev.dockerfile
+  mkdir -p dockerfiles
   sed -e "s/\$PORT/$api_port/g" ./scripts/files/dev.dockerfile > ./dockerfiles/dev.dockerfile
   echo -e "\033[1mdockerfiles/dev.dockerfile\033[0m file created."
 

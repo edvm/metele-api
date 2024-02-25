@@ -17,4 +17,4 @@ COPY . ./
 RUN mkdir -p /var/log/api
 EXPOSE $PORT/tcp
 ENV PYTHONPATH app
-CMD ["/app/entrypoint.sh"]
+# CMD ["/app/entrypoint.sh"]
