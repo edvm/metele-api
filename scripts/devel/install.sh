@@ -34,13 +34,13 @@ function ask_project_settings() {
   sed -e "s/\$NAME/$project_name/g" -e "s/\$DESCRIPTION/$project_description/g" -e "s/\$AUTHOR_NAME/$project_author_name/g" -e "s/\$AUTHOR_EMAIL/$project_author_email/g" -e "s/\$PYTHON_VERSION/$python_version/g" ./scripts/files/pyproject.sample.toml > pyproject.toml
   echo -e "\n\033[1mpyproject.toml\033[0m file created."
 
+  # Copy the file ./scripts/files/docker-compose.sample.yml to docker-compose.yml
+  sed -e "s/\$PORT/$api_port/g" -e "s/\$PROJECT_NAME/$project_name/g" -e "s/$HOST/$api_host/g" ./scripts/files/docker-compose.sample.yml > docker-compose.yml
+  echo -e "\033[1mdocker-compose.yml\033[0m file created."
+
   # Copy the file ./scripts/files/dev.dockerfile to ./dockerfiles/dev.dockerfile
   sed -e "s/\$PORT/$api_port/g" ./scripts/files/dev.dockerfile > ./dockerfiles/dev.dockerfile
-  echo -e "\033[1m./dockerfiles/dev.dockerfile\033[0m file created."
-
-  # Copy the file ./scripts/files/docker-compose.sample.yml to docker-compose.yml
-  sed -e "s/\$PORT/$api_port/g" ./scripts/files/docker-compose.sample.yml > docker-compose.yml
-  echo -e "\033[1mdocker-compose.yml\033[0m file created."
+  echo -e "\033[1mdockerfiles/dev.dockerfile\033[0m file created."
 
   # Create the .env file with the provided variables
   echo -e "PROJECT_NAME=\"$project_name\"\nPROJECT_DESCRIPTION=\"$project_description\"\nPROJECT_AUTHOR_NAME=\"$project_author_name\"\nPROJECT_AUTHOR_EMAIL=\"$project_author_email\"\nAPI_HOST=\"$api_host\"\nAPI_PORT=\"$api_port\"" > .env
