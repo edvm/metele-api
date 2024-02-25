@@ -12,7 +12,7 @@ function rye_installed() {
 
 function ask_project_settings() {
   echo -e "\nPlease provide the following information to create a \033[1m.env\033[0m file with the following variables:\n"
-  echo -e "- \033[1mPROJECT_NAME\033[0m: The name of the project."
+  echo -e "- \033[1mPROJECT_NAME\033[0m: The name of the project (better if its lowercase)."
   read -p "  Project name: " project_name
   echo -e "- \033[1mPROJECT_DESCRIPTION\033[0m: A brief description of the project."
   read -p "  Project description: " project_description
@@ -28,14 +28,15 @@ function ask_project_settings() {
   read -p "  Python version: " python_version
 
   # Make the python version be available to the rest of the script
-  export PYTHON_VERSION=$python_version 
+  export PYTHON_VERSION=$python_version
 
   # Copy the file ./scripts/files/pyproject.sample.toml to pyproject.toml
   sed -e "s/\$NAME/$project_name/g" -e "s/\$DESCRIPTION/$project_description/g" -e "s/\$AUTHOR_NAME/$project_author_name/g" -e "s/\$AUTHOR_EMAIL/$project_author_email/g" -e "s/\$PYTHON_VERSION/$python_version/g" ./scripts/files/pyproject.sample.toml > pyproject.toml
   echo -e "\n\033[1mpyproject.toml\033[0m file created."
 
+
   # Copy the file ./scripts/files/docker-compose.sample.yml to docker-compose.yml
-  sed -e "s/\$PORT/$api_port/g" -e "s/\$PROJECT_NAME/$project_name/g" -e "s/$HOST/$api_host/g" ./scripts/files/docker-compose.sample.yml > docker-compose.yml
+  sed -e "s/\$PORT/$api_port/g" -e "s/\$PROJECT_NAME/$project_name/g" -e "s/\$HOST/$api_host/g" ./scripts/files/docker-compose.sample.yml > docker-compose.yml
   echo -e "\033[1mdocker-compose.yml\033[0m file created."
 
   # Copy the file ./scripts/files/dev.dockerfile to ./dockerfiles/dev.dockerfile
@@ -100,7 +101,7 @@ echo -e "\033[1mWelcome to MeteleAPI installation script\033[0m"
 echo -e "----------------------------------------\n"
 
 # Echo a message to the user telling that `docker` and `docker-compose` are required
-echo -e "This script requires \033[1mDocker, Curl\033[0m and \033[1mDocker Compose\033[0m to be installed in your system.\n"
+echo -e "This script requires \033[1mdocker, curl\033[0m and \033[1mdocker compose\033[0m to be installed in your system.\n"
 
 # Write a brief description of the steps this installer will take
 echo -e "This script will execute the following steps:\n"

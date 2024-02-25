@@ -9,25 +9,19 @@ export LOGURU_LEVEL=DEBUG
 PYTEST_REQUIRED_RUNNING_CONTAINERS=()
 
 # Command to run the linter.
-LINTER_CMD="black ."
+LINTER_CMD="rye run black ."
 
 
-# Function to run if a `.local.env` file exists, to load environment variables
+# Function to run if an `.env` file exists, to load environment variables
 # If it doesn't exists, exit with an error message.
-# If any of the following environment variables isnt set (or is empty), exit with an error message.
-# List of environment variables to check:
-# - HOST
-# - PORT
-# - NETWORK_NAME (optional)
-# - CONTAINER_NAME
 function load_env() {
-    if [ -f .local.env ]; then
-        source .local.env
+    if [ -f .env ]; then
+        source .env
     else
         echo "You must create a .local.env file with the environment variables:"
         echo " - HOST (e.g. localhost, used when running the application in debug mode)"
         echo " - PORT (e.g. 8000, used when running the application in debug mode)"
-        echo " - CONTAINER_NAME (the name of the docker container that'll be created)"
+        echo " - PROJECT_NAME (the name of the docker container that'll be created)"
         echo " - NETWORK_NAME (optional, the name of the docker network the container will be connected to)"
         exit 1
     fi
@@ -42,8 +36,8 @@ function load_env() {
         exit 1
     fi
 
-    if [ -z "$CONTAINER_NAME" ]; then
-        echo "The CONTAINER_NAME environment variable is not set."
+    if [ -z "$PROJECT_NAME" ]; then
+        echo "The PROJECT_NAME environment variable is not set."
         exit 1
     fi
 
@@ -65,10 +59,29 @@ function check_root() {
 
 # Function to check if the virtual environment exists
 function check_venv() {
-    if [ ! -d "./venv" ]; then
-        echo "You must create a virtual environment first."
+    if [ ! -d "./.venv" ]; then
+        echo "No virtual environment found. Be sure to run 'rye sync' before running this command."
         exit 1
     fi
+}
+
+function rye_installed() {
+  if [ -f "$HOME/.rye/env" ]; then
+    return 0
+  else
+    return 1
+  fi
+} 
+
+# Function to activate the virtual environment
+function activate_venv() {
+    if ! rye_installed; then
+        echo "Rye is not installed. Please install it and try again."
+        echo "It should be installed by the install.sh script."
+        exit 1
+    fi
+    source $HOME/.rye/env
+    . ./.venv/bin/activate
 }
 
 # Function to run pytest
@@ -90,7 +103,7 @@ function run_pytest() {
 function run_debug() {
     check_root
     check_venv
-    source ./venv/bin/activate
+    activate_venv
     PYTHONPATH=`pwd`/app hypercorn --bind "$HOST:$PORT" --reload main:app
 }
 
@@ -99,20 +112,14 @@ function run_debug() {
 function run_install() {
     check_root
     chmod +x ./scripts/devel/install.sh
-    ./scripts/devel/install.sh "$1"
+    ./scripts/devel/install.sh
 }
 
 
 if [[ "$1" == "debug" ]]; then
     run_debug
 elif [[ "$1" == "install" ]]; then
-    # Check if a version is passed as an argument
-    if [ -z "$2" ]; then
-        echo "You must pass a Python version as an argument."
-        echo "Usage: localenv.sh install 3.12"
-        exit 1
-    fi
-    run_install "$2"
+    run_install
 elif [[ "$1" == "up" ]]; then
     docker compose up --build --remove-orphans
 elif [[ "$1" == "pytest" ]]; then
@@ -123,8 +130,10 @@ elif [[ "$1" == "ipython" ]]; then
 elif [[ "$1" == "down" ]]; then
     docker compose -v down 
 elif [[ "$1" == "lint" ]]; then
-    source ./venv/bin/activate
-    cd ./src 
+    check_root
+    check_venv
+    activate_venv
+    cd ./app
     echo "Running linter..."
     eval $LINTER_CMD
 else
