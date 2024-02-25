@@ -161,7 +161,15 @@ cython_debug/
 #
 .python-version
 
-.local.env
+# metele api
+dockerfiles/dev.dockerfile
+docker-compose.yml
+pyproject.toml
 
 # mkdocs
 docs/site
+
+
+# rye
+requirements-dev.lock
+requirements.lock
