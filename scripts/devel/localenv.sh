@@ -9,7 +9,7 @@ export LOGURU_LEVEL=DEBUG
 PYTEST_REQUIRED_RUNNING_CONTAINERS=()
 
 # Command to run the linter.
-LINTER_CMD="rye run black ."
+LINTER_CMD="rye run ruff ."
 
 
 # Function to run if an `.env` file exists, to load environment variables
@@ -19,20 +19,20 @@ function load_env() {
         source .env
     else
         echo "You must create a .local.env file with the environment variables:"
-        echo " - HOST (e.g. localhost, used when running the application in debug mode)"
-        echo " - PORT (e.g. 8000, used when running the application in debug mode)"
+        echo " - API_HOST (e.g. localhost, used when running the application in debug mode)"
+        echo " - API_PORT (e.g. 8000, used when running the application in debug mode)"
         echo " - PROJECT_NAME (the name of the docker container that'll be created)"
         echo " - NETWORK_NAME (optional, the name of the docker network the container will be connected to)"
         exit 1
     fi
 
-    if [ -z "$HOST" ]; then
-        echo "The HOST environment variable is not set."
+    if [ -z "$API_HOST" ]; then
+        echo "The API_HOST environment variable is not set."
         exit 1
     fi
 
-    if [ -z "$PORT" ]; then
-        echo "The PORT environment variable is not set."
+    if [ -z "$API_PORT" ]; then
+        echo "The API_PORT environment variable is not set."
         exit 1
     fi
 
@@ -95,8 +95,8 @@ function run_pytest() {
         fi
     done
     shift  # remove `pytest` from the args
-    echo "To be implemented"
-    # docker run -it -v `pwd`/src:/app/src/ --rm --network some-network container-name pytest -vv "$@"
+    echo "Running pytest..."
+    # docker run -it -v `pwd`/app:/app/ --rm --network $NETWORK_NAME $PROJECT_NAME pytest -vv "$@"
 }
 
 # Function to run the application in debug mode
@@ -104,7 +104,7 @@ function run_debug() {
     check_root
     check_venv
     activate_venv
-    PYTHONPATH=`pwd`/app hypercorn --bind "$HOST:$PORT" --reload main:app
+    PYTHONPATH=`pwd`/app hypercorn --bind "$API_HOST:$API_PORT" --reload main:app
 }
 
 
@@ -137,13 +137,12 @@ elif [[ "$1" == "lint" ]]; then
     echo "Running linter..."
     eval $LINTER_CMD
 else
-    # echo -e "Usage: localenv.sh [\e[0m\e[32mup\e[0m\e[32m|\e[0m\e[32mdown\e[0m\e[32m|\e[0m\e[32mpytest\e[0m\e[32m|\e[0m\e[32mdebug\e[0m\e[32m|\e[0m\e[32mipython\e[0m\e[32m|\e[0m\e[32mlint\e[0m\e[32m]\e[0m"
-    echo -e "Usage: localenv.sh [\e[0m\e[32mup\e[0m\e[32m|\e[0m\e[32mdown\e[0m\e[32m|\e[0m\e[32mpytest\e[0m\e[32m|\e[0m\e[32mdebug\e[0m\e[32m|\e[0m\e[32mipython\e[0m\e[32m|\e[0m\e[32mlint\e[0m\e[32m|\e[0m\e[32minstall\e[0m\e[32m]\e[0m"
-    echo -e "\e[32m  up:\e[0m start the local environment"
-    echo -e "\e[32m  down:\e[0m stop the local environment"
-    echo -e "\e[32m  pytest:\e[0m run pytest in the container. It accepts all the pytest arguments. Needs 'devops-docker' project running\e[0m"
-    echo -e "\e[32m  debug:\e[0m starts gunicorn in a verbose mode to debug possible startup errors\e[0m" 
-    echo -e "\e[32m  ipython:\e[0m starts ipython shell with the database connection\e[0m"
-    echo -e "\e[32m  lint:\e[0m run black to lint the code\e[0m"
-    echo -e "\e[32m  install:\e[0m install project from scratch (create virtualenv, etc.)\e[0m"
+    echo -e "Usage: localenv.sh [\e[1mup\e[0m|\e[1mdown\e[0m|\e[1mpytest\e[0m|\e[1mdebug\e[0m|\e[1mipython\e[0m|\e[1mlint\e[0m|\e[1minstall\e[0m]"
+    echo -e "\e[1m  up:\e[0m start the local environment"
+    echo -e "\e[1m  down:\e[0m stop the local environment"
+    echo -e "\e[1m  pytest:\e[0m run pytest in the container. It accepts all the pytest arguments. Needs 'devops-docker' project running\e[0m"
+    echo -e "\e[1m  debug:\e[0m starts gunicorn in a verbose mode to debug possible startup errors\e[0m" 
+    echo -e "\e[1m  ipython:\e[0m starts ipython shell with the database connection\e[0m"
+    echo -e "\e[1m  lint:\e[0m run black to lint the code\e[0m"
+    echo -e "\e[1m  install:\e[0m install project from scratch (it'll create a virtualenv, config files, etc.)\e[0m"
 fi
