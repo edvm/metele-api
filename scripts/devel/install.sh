@@ -24,16 +24,18 @@ function ask_project_settings() {
   read -p "  API host: " api_host
   echo -e "- \033[1mAPI_PORT\033[0m: The port where the API will listen."
   read -p "  API port: " api_port
-  echo -e "- \033[1mPYTHON_VERSION\033[0m: The version of Python to use. It'll be installed using Rye (if not already installed in your system)"
-  read -p "  Python version (i.e: 3.12): " python_version
+  echo -e "- \033[1mPYTHON_VERSION\033[0m: The version of Python to use. It'll be installed using Rye (if not already installed in your system). Just provide the version number (e.g. 3.12)."
+  read -p "  Python version: " python_version
 
   # Make the python version be available to the rest of the script
   export PYTHON_VERSION=$python_version 
 
   # Copy the file ./scripts/files/pyproject.sample.toml to pyproject.toml
-  # Replace the following variables in the file:
   sed -e "s/\$NAME/$project_name/g" -e "s/\$DESCRIPTION/$project_description/g" -e "s/\$AUTHOR_NAME/$project_author_name/g" -e "s/\$AUTHOR_EMAIL/$project_author_email/g" -e "s/\$PYTHON_VERSION/$python_version/g" ./scripts/files/pyproject.sample.toml > pyproject.toml
   echo -e "\n\033[1mpyproject.toml\033[0m file created."
+
+  # Copy the file ./scripts/files/dev.dockerfile to ./dockerfiles/dev.dockerfile
+  sed -e "s/\$PORT/$api_port/g" ./scripts/files/dev.dockerfile > ./dockerfiles/dev.dockerfile
 
   # Create the .env file with the provided variables
   echo -e "PROJECT_NAME=\"$project_name\"\nPROJECT_DESCRIPTION=\"$project_description\"\nPROJECT_AUTHOR_NAME=\"$project_author_name\"\nPROJECT_AUTHOR_EMAIL=\"$project_author_email\"\nAPI_HOST=\"$api_host\"\nAPI_PORT=\"$api_port\"" > .env
