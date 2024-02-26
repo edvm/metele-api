@@ -28,6 +28,7 @@ theme:
 
 plugins:
   - social
+  - search
 
 extra:
   social:
