@@ -20,4 +20,4 @@ On every new **FastAPI** project, you need to define a *logger*, consume environ
 
 **MeteleAPI** makes it very easy to manage dependencies or third-party libraries in your project. Providing this functionality is thanks to the [Rye](http://rye-up.com) project, which **MeteleAPI** uses.
 
-Please read the full docs at: https://edvm.github.io/faster-fastapi/
+Please read the full docs at: https://edvm.github.io/metele-api/ 
