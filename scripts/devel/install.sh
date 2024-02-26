@@ -62,7 +62,7 @@ function generate_docker_compose() {
 
 function generate_dev_dockerfile() {
   mkdir -p dockerfiles
-  sed -e "s/\$PORT/$API_PORT/g" ./scripts/files/dev.dockerfile > dev.dockerfile
+  sed -e "s/\$PORT/$API_PORT/g" ./scripts/files/dev.dockerfile > ./dockerfiles/dev.dockerfile
   echo -e "\033[1mdev.dockerfile\033[0m file created."
 }
 
