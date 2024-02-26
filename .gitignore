@@ -165,6 +165,7 @@ cython_debug/
 dockerfiles/dev.dockerfile
 docker-compose.yml
 pyproject.toml
+.metele
 
 # mkdocs
 docs/site

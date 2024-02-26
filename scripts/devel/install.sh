@@ -10,6 +10,20 @@ function rye_installed() {
   fi
 } 
 
+function metele_api_config_file_exists() {
+  if [ -f ".metele" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+function read_metele_api_config_file() {
+  if metele_api_config_file_exists; then
+    source .metele
+  fi
+}
+
 function ask_project_settings() {
   echo -e "\nPlease provide the following information to create a \033[1m.env\033[0m file with the following variables:\n"
   echo -e "- \033[1mPROJECT_NAME\033[0m: The name of the project (better if its lowercase)."
@@ -27,26 +41,48 @@ function ask_project_settings() {
   echo -e "- \033[1mPYTHON_VERSION\033[0m: The version of Python to use. It'll be installed using Rye (if not already installed in your system). Just provide the version number (e.g. 3.12)."
   read -p "  Python version: " python_version
 
-  # Make the python version be available to the rest of the script
   export PYTHON_VERSION=$python_version
+  export API_HOST=$api_host
+  export API_PORT=$api_port
+  export PROJECT_NAME=$project_name
+  export PROJECT_DESCRIPTION=$project_description
+  export PROJECT_AUTHOR_NAME=$project_author_name
+  export PROJECT_AUTHOR_EMAIL=$project_author_email
+}
 
-  # Copy the file ./scripts/files/pyproject.sample.toml to pyproject.toml
-  sed -e "s/\$NAME/$project_name/g" -e "s/\$DESCRIPTION/$project_description/g" -e "s/\$AUTHOR_NAME/$project_author_name/g" -e "s/\$AUTHOR_EMAIL/$project_author_email/g" -e "s/\$PYTHON_VERSION/$python_version/g" ./scripts/files/pyproject.sample.toml > pyproject.toml
+function generate_pyproject_toml() {
+  sed -e "s/\$NAME/$PROJECT_NAME/g" -e "s/\$DESCRIPTION/$PROJECT_DESCRIPTION/g" -e "s/\$AUTHOR_NAME/$PROJECT_AUTHOR_NAME/g" -e "s/\$AUTHOR_EMAIL/$PROJECT_AUTHOR_EMAIL/g" -e "s/\$PYTHON_VERSION/$PYTHON_VERSION/g" ./scripts/files/pyproject.sample.toml > pyproject.toml
   echo -e "\n\033[1mpyproject.toml\033[0m file created."
+}
 
-
-  # Copy the file ./scripts/files/docker-compose.sample.yml to docker-compose.yml
-  sed -e "s/\$PORT/$api_port/g" -e "s/\$PROJECT_NAME/$project_name/g" -e "s/\$HOST/$api_host/g" ./scripts/files/docker-compose.sample.yml > docker-compose.yml
+function generate_docker_compose() {
+  sed -e "s/\$PORT/$API_PORT/g" -e "s/\$PROJECT_NAME/$PROJECT_NAME/g" -e "s/\$HOST/$API_HOST/g" ./scripts/files/docker-compose.sample.yml > docker-compose.yml
   echo -e "\033[1mdocker-compose.yml\033[0m file created."
+}
 
-  # Copy the file ./scripts/files/dev.dockerfile to ./dockerfiles/dev.dockerfile
+function generate_dev_dockerfile() {
   mkdir -p dockerfiles
-  sed -e "s/\$PORT/$api_port/g" ./scripts/files/dev.dockerfile > ./dockerfiles/dev.dockerfile
-  echo -e "\033[1mdockerfiles/dev.dockerfile\033[0m file created."
+  sed -e "s/\$PORT/$API_PORT/g" ./scripts/files/dev.dockerfile > dev.dockerfile
+  echo -e "\033[1mdev.dockerfile\033[0m file created."
+}
 
-  # Create the .env file with the provided variables
-  echo -e "PROJECT_NAME=\"$project_name\"\nPROJECT_DESCRIPTION=\"$project_description\"\nPROJECT_AUTHOR_NAME=\"$project_author_name\"\nPROJECT_AUTHOR_EMAIL=\"$project_author_email\"\nAPI_HOST=\"$api_host\"\nAPI_PORT=\"$api_port\"" > .env
+function generate_env_file() {
+  echo -e "PROJECT_NAME=\"$PROJECT_NAME\"\nPROJECT_DESCRIPTION=\"$PROJECT_DESCRIPTION\"\nPROJECT_AUTHOR_NAME=\"$PROJECT_AUTHOR_NAME\"\nPROJECT_AUTHOR_EMAIL=\"$PROJECT_AUTHOR_EMAIL\"\nAPI_HOST=\"$API_HOST\"\nAPI_PORT=\"$API_PORT\"" > .env
   echo -e "\033[1m.env\033[0m file created."
+}
+
+function create_files() {
+
+  if metele_api_config_file_exists; then
+    read_metele_api_config_file
+  else
+    ask_project_settings
+  fi
+
+  generate_pyproject_toml
+  generate_docker_compose
+  generate_dev_dockerfile
+  generate_env_file
 
   echo -e "\nDo you want to proceed with the installation? (\033[1my/n\033[0m)"
   read install_proceed
@@ -71,7 +107,6 @@ function check_dependencies() {
 }
 
 function install_rye() {
-
   if rye_installed; then
     echo -e "\033[1mRye\033[0m is already installed."
     return
@@ -107,25 +142,23 @@ echo -e "This script requires \033[1mdocker, curl\033[0m and \033[1mdocker compo
 # Write a brief description of the steps this installer will take
 echo -e "This script will execute the following steps:\n"
 
-echo -e "- It will ask you for some information to create an \033[1m.env\033[0m file with the following variables:\n"
-echo -e "\t- \033[1mPROJECT_NAME\033[0m: The name of the project."
-echo -e "\t- \033[1mPROJECT_DESCRIPTION\033[0m: A brief description of the project."
-echo -e "\t- \033[1mPROJECT_AUTHOR_NAME\033[0m: The name of the author of the project."
-echo -e "\t- \033[1mPROJECT_AUTHOR_EMAIL\033[0m: The email of the author of the project."
-echo -e "\t- \033[1mAPI_HOST\033[0m: The host where the API will listen."
-echo -e "\t- \033[1mAPI_PORT\033[0m: The port where the API will listen."
-echo -e "\t- \033[1mPYTHON_VERSION\033[0m: The version of Python to use. Will be installed using Rye, no worries if its not installed in your system."
-echo -e ""
+echo -e "- \033[1mDependencies\033[0m:\tIt will check if \033[1mdocker\033[0m and \033[1mdocker-compose\033[0m are installed."
+
+if ! metele_api_config_file_exists; then
+  echo -e "- It will ask you for some information to create the following files:\n"
+  echo -e "\t- \033[1mpyproject.toml\033[0m: A file with the project's metadata."
+  echo -e "\t- \033[1mdocker-compose.yml\033[0m: A file with the configuration to run the API with Docker."
+  echo -e "\t- \033[1mdev.dockerfile\033[0m: A file with the configuration to run the API with Docker in development mode."
+  echo -e "\t- \033[1m.env\033[0m: A file with the environment variables for the project."
+else
+  echo -e "- \033[1mSettings\033[0m:\tIt will read the \033[1m.metele\033[0m file to get the project settings."
+fi
 
 if ! rye_installed; then
   echo -e "- \033[1mRye\033[0m:\tIt will check if its already installed. If not, it will install it."
   echo -e "\tIt provides a unified experience to \033[1minstall and manages Python installations.\033[0m \n\tIf you want to know more about \033[1mRye\033[0m, please visit https://rye-up.com/."
 fi
 
-# if ! rye_installed; then
-#   echo -e "- \033[1mRye\033[0m:\tIt will check if its already installed. If not, it will install it."
-#   echo -e "\tIt provides a unified experience to \033[1minstall and manages Python installations.\033[0m \n\tIf you want to know more about \033[1mRye\033[0m, please visit https://rye-up.com/."
-# fi
 echo -e "\n"
 
 # Ask user if it wants to proceed
@@ -140,7 +173,10 @@ fi
 check_dependencies
 
 # Ask user for project settings
-ask_project_settings
+if ! metele_api_config_file_exists; then
+  ask_project_settings
+fi
+create_files
 
 # Check if 'rye' is installed, if not, install it
 install_rye
@@ -152,7 +188,6 @@ if ! rye_installed; then
 fi 
 
 install_dependencies_with_rye
-
 
 echo -e "\n\033[1mAll dependencies installed successfully!\033[0m"
 echo -e "----------------------------------------\n"
