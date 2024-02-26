@@ -1,113 +1,23 @@
-## Installation
+# Welcome to MeteleAPI
 
-To install the project, follow these steps:
+**MeteleAPI** is a project that aims to enable programmers to start implementing an API using **FastAPI** **quickly** and **easily**.
 
-0. Check which python version do you have installed in your system. I'll use *3.12* in this document.
+## Why
 
-1. Clone the repository to your local machine.
+On every new **FastAPI** project, you need to define a *logger*, consume environment variables from an *.env* file, maybe you'll consume 3rd services so you'll need an *http api client* and the list goes on.
 
-2. Run the `localenv.sh` script located in the `scripts/devel` directory. This script sets up the local environment for the project.
+**MeteleAPI** tries to help you with these repetitive tasks so you can start writing your API endpoints and focus on your business logic from moment zero.
 
-   ```bash
-   ./scripts/devel/localenv.sh install 3.12
-   ```
+## How
 
-3. In order to create docker containers, we need some environment variables to be set. Copy *local.env.example* and set appropiate settings according to your project:
+**MeteleAPI** already provides you with a directory structure that it's suggested to be followed, but it's up to you how do you want to structure your code.
 
-   ```bash
-   cp local.env.example .local.env
-   ```
+**MeteleAPI** comes with *batteries included*. It provides ***services***, which are simple Python modules that provide reusable generic functionalities that are generally necessary when developing an API. See *Services* tab for more information. Also, If you want to contribute to the project, new services are very welcome!
 
-#### Configure project settings
+**MeteleAPI** takes care of everything related to the Python interpreter you want to use in your project. You only have to specify which version of Python you want to use (and this is optional! If you don't choose a Python version to run the project with, one will be automatically selected). You no longer have to struggle with *virtualenvs*, installing the Python interpreter, etc. **MeteleAPI** does it for you :)
 
-0. Any environment variable set on *.env* will be available on the running container
-1. Any value set on *.env* file will override values set on `app/settings/Settings` class.
+**MeteleAPI** automatically generates files for Docker and Docker Compose, so you can run the API within a Docker container. Additionally, it comes configured with *hot-reloading*, so any changes you make to your source code are automatically reloaded within the container.
 
-#### Running the project
+**MeteleAPI** makes it very easy to manage dependencies or third-party libraries in your project. Providing this functionality is thanks to the [Rye](http://rye-up.com) project, which **MeteleAPI** uses.
 
-0. Use the *localenv.sh* script to start the docker container
-
-```bash
-‹main*› » ./scripts/devel/localenv.sh up
-[+] Building 13.5s (11/11)                                                                 ...
-[+] Running 1/1
- ✔ Container fastapi  Recreated                                                                                                                           0.1s 
-Attaching to fastapi
-fastapi  | DEBUG:asyncio:Using selector: EpollSelector
-fastapi  | [2024-02-16 17:50:08 +0000] [8] [INFO] Running on http://0.0.0.0:7000 (CTRL + C to quit)
-fastapi  | INFO:hypercorn.error:Running on http://0.0.0.0:7000 (CTRL + C to quit)
-```
-
-1. Open your web browser and visit: http://localhost:7000/api/v1/hello/
-
-You should see the following response `{"message":"Hello World"}`
-
-#### Running the project in DEBUG mode
-
-0. This will run FastAPI on your local system (outside Docker container). It activates the *virtualenv* and start *hypercorn* in debug mode. Keep in mind that *.local.env* values (HOST and PORT) are used:
-
-```bash
-‹main*› » ./scripts/devel/localenv.sh debug
-NETWORK_NAME is not set. Using the default network: bridge
-DEBUG:asyncio:Using selector: EpollSelector
-[2024-02-16 17:53:18 +0000] [1556034] [INFO] Running on http://127.0.0.1:7000 (CTRL + C to quit)
-INFO:hypercorn.error:Running on http://127.0.0.1:7000 (CTRL + C to quit)
-```
-
-#### Add a new API endpoint
-
-0. Place a new file with api endpoints inside `app/api/routes/`. Each new file must provide an `APIRouter` . See `app/api/routes/hello.py` and use it as an example for new modules:
-
-```pyt
-from fastapi import APIRouter
-
-newmodule_router = APIRouter()
-@newmodule_router.get(...)
-async def new(...):
-    ...
-```
-
-1. Register `APIRouter` from previous file on `app/api/routes/urls.py` 
-
-URL to access defined APIs are like: `http://host:port/<API_PREFIX>/<PREFIX_VERSION>` where:
-
-- `API_PREFIX` is defined on `settings.py` . Remember you can change this value on *.env* file.
-- `PREFIX_VERSION` is defined on `app/api/urls.py` when using `include_router` (use`hello_router`as an example)
-
-#### Services
-
-Services must be placed inside `app/services/` directory. The project already provides the following services:
-
-##### HTTP
-
-Its an HTTP client. Usefull when you have to call external API's or other services. By default, it'll retry up to 5 times if the request fails.
-
-```python
-from services import http
-
-async def test():
-    result = await http.get(url="https://google.com")
-```
-
-##### Logger
-
-A logger ready to be used.
-
-```python
-from services import logger
-
-async def test():
-    logger.debug("cool!")
-```
-
-##### Settings
-
-Access your project settings from any part of your code. Remember that settings are defined on `settings.py` -> `Settings` class.  Any class attribute defined in `Settings` class can be overrided on *.env* file  
-
-```python
-from services import settings
-
-async def test():
-    return settings.HOST + ":" + settings.PORT
-```
-
+Please read the full docs at: https://edvm.github.io/faster-fastapi/
