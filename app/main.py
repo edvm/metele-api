@@ -1,16 +1,15 @@
-from api.urls import router as api_router
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from services import settings
+from services import settings, logger
+from api.urls import router as api_router
 
 
 def get_application() -> FastAPI:
     """Return FastAPI application."""
 
     application = FastAPI(
-        title=settings.PROJECT_NAME,
         debug=settings.DEBUG,
-        version=settings.VERSION,
+        title=settings.PROJECT_NAME,
+        version=settings.PROJECT_VERSION,
     )
     application.include_router(api_router, prefix=settings.API_PREFIX)
 
@@ -20,10 +19,15 @@ def get_application() -> FastAPI:
 app = get_application()
 
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+if settings.CORS_ALLOW_ALL_ORIGINS:
+    from fastapi.middleware.cors import CORSMiddleware
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+    logger.info("CORS allowed for all origins.")
+else:
+    logger.info("CORS not allowed for all origins.")
