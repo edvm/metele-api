@@ -11,3 +11,7 @@ services:
       - "$PORT:$PORT"
     volumes:
       - ./app:/app
+    env_file:
+      - .metele 
+      - .env
+

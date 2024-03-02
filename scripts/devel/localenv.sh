@@ -19,7 +19,7 @@ function check_venv() {
 }
 
 function check_envfile() {
-    if [ ! -f "./.env" ]; then
+    if [ ! -f "./.metele" ]; then
         echo -e "The \033[1m.env\033[0m file does not exist. Please run \033[1m./scripts/devel/localenv.sh install\033[0m command to create it."
         exit 1
     fi
@@ -77,7 +77,7 @@ function run_install() {
 check_root
 if [[ "$1" != "install" ]]; then
     check_envfile
-    source .env
+    source .metele
 fi
 
 if [[ "$1" == "up" ]]; then
@@ -91,10 +91,11 @@ elif [[ "$1" == "down" ]]; then
 elif [[ "$1" == "lint" ]]; then
     run_linter
 else
-    echo =e "\e[1mUsage:\e[0m"
-    echo -e "\e[1m  up:\e[0m start the local environment"
-    echo -e "\e[1m  down:\e[0m stop the local environment"
-    echo -e "\e[1m  pytest:\e[0m run pytest in the container. It accepts all the pytest arguments." 
-    echo -e "\e[1m  lint:\e[0m run black to lint the code\e[0m"
-    echo -e "\e[1m  install:\e[0m install project from scratch (it'll create a virtualenv, config files, etc.)\e[0m"
+    # Write the usage message
+    echo -e "Usage:"
+    echo -e "  \033[1mup\033[0m: start the local environment"
+    echo -e "  \033[1mdown\033[0m: stop the local environment"
+    echo -e "  \033[1mpytest\033[0m: run pytest in the container. It accepts all the pytest arguments."
+    echo -e "  \033[1mlint\033[0m: run black to lint the code"
+    echo -e "  \033[1minstall\033[0m: install project from scratch (it'll create a virtualenv, config files, etc.)"
 fi
